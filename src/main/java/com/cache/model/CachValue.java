@@ -13,8 +13,8 @@ import java.util.Map;
 public class CachValue {
     private static int count;
     private static int maxCount = 10;
-    private Map<String, WeakReference<Node>> youngMap = new HashMap<String, WeakReference<Node>>();
-    private Map<String, SoftReference<Node>> oldMap = new HashMap<String, SoftReference<Node>>();
+    private Map<WeakReference<String>, WeakReference<Node>> youngMap = new HashMap<WeakReference<String>, WeakReference<Node>>();
+    private Map< SoftReference<String>, SoftReference<Node>> oldMap = new HashMap<SoftReference<String>, SoftReference<Node>>();
     public static CachValue cash = new CachValue();
 
 
@@ -47,12 +47,12 @@ public class CachValue {
         String key = ob.getKeyMy();
         WeakReference<Node> value = new WeakReference<Node>(new Node<String>(ob.getValue()));
         if (youngMap.get(key) == null) {
-            youngMap.put(key, value);
+            youngMap.put(new WeakReference<String>(key), value);
         } else {
             int count = youngMap.get(key).get().count;
             count++;
             value.get().count = count;
-            youngMap.put(key, value);
+            youngMap.put(new WeakReference<String>(key), value);
 
         }
         System.out.println(youngMap.get(key).get().count);
@@ -88,9 +88,9 @@ public class CachValue {
         count++;
         node.get().count = count;
         if (node.getClass().equals(SoftReference.class)) {
-            oldMap.put(key, (SoftReference) node);
+            oldMap.put(new SoftReference<String>(key), (SoftReference) node);
         } else {
-            youngMap.put(key, (WeakReference<Node>) node);
+            youngMap.put(new WeakReference<String>(key), (WeakReference<Node>) node);
         }
         ob.setValue((String) node.get().value);
         System.out.println(node.get());
