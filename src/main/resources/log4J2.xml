@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="log-path">./log/log.log</Property>
+        <Property name="log-project-name">sample</Property>
+        <Property name="log-pattern">%d{ISO8601} %-5p [Sample][%t|%c{1}] %L %M %m\n</Property>
+    </Properties>
+
+    <Appenders>
+
+        <File name="file" fileName="${log-path}" ignoreExceptions="false">
+            <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <Pattern>${log-pattern}</Pattern>
+            </PatternLayout>
+
+        </File>
+
+        <Console name="console" target="SYSTEM_OUT">
+            <filters>
+
+                <LevelRangeFilter minLevel="INFO" maxLevel="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </filters>
+            <PatternLayout>
+                <pattern>${log-pattern}</pattern>
+            </PatternLayout>
+        </Console>
+
+    </Appenders>
+    <Loggers>
+
+        <Logger name="com.cache" level="DEBUG">
+            <AppenderRef ref="file"/>
+        </Logger>
+
+        <Root level="DEBUG">
+            <AppenderRef ref="console"/>
+
+        </Root>
+    </Loggers>
+
+</Configuration>

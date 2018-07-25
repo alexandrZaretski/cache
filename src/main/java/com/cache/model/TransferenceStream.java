@@ -1,29 +1,51 @@
 package com.cache.model;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TransferenceStream implements Runnable {
-    private Map<WeakReference<String>, WeakReference<CachValue.Node>> youngMap;
-    private Map<SoftReference<String>, SoftReference<CachValue.Node>> oldMap;
+    private static Logger logger = LogManager.getLogger(TransferenceStream.class);
+
+    private ConcurrentHashMap<String, WeakReference<CachValue.Node>> youngMap = CachValue.youngMap;
+
+
+    private ConcurrentHashMap<String, SoftReference<CachValue.Node>> oldMap = CachValue.oldMap;
+
+
     private static int max = 10;
 
-    public TransferenceStream(Map<WeakReference<String>, WeakReference<CachValue.Node>> youngMap, Map<SoftReference<String>, SoftReference<CachValue.Node>> oldMap) {
-        this.youngMap = youngMap;
-        this.oldMap = oldMap;
+    public TransferenceStream() {
+
+
     }
 
     @Override
     public void run() {
-        for (Map.Entry<WeakReference<String>, WeakReference<CachValue.Node>> entry : youngMap.entrySet()) {
-            if (entry.getValue().get().count > max) {
-                oldMap.put(new SoftReference<String>(entry.getKey().get()), new SoftReference<CachValue.Node>(entry.getValue().get()));
+
+        logger.info("start with youngMap.size()= " + youngMap.size() + " oldMap.size()=" + oldMap.size());
+        logger.debug("start with youngMap= " + youngMap + " oldMap=" + oldMap);
+        for (ConcurrentHashMap.Entry<String, WeakReference<CachValue.Node>> entry : youngMap.entrySet()) {
+            System.out.println(entry.getValue().get()==null);
+
+            if (entry.getValue() != null && entry.getValue().get() != null) {
+                System.out.println(entry.getValue().get().count);
+                if (entry.getValue().get().count > max) {
+                    oldMap.put(entry.getKey(), new SoftReference<CachValue.Node>(entry.getValue().get()));
+                    youngMap.remove(entry.getKey());
+                }
+            } else {
+
                 youngMap.remove(entry.getKey());
             }
         }
-        System.out.println(oldMap);
+        logger.info("finish with youngMap.size()= " + youngMap.size() + " oldMap.size()=" + oldMap.size());
+        logger.debug("finish with youngMap= " + youngMap + " oldMap=" + oldMap);
+
+
     }
 
 
