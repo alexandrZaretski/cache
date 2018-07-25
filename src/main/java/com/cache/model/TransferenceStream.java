@@ -29,10 +29,7 @@ public class TransferenceStream implements Runnable {
         logger.info("start with youngMap.size()= " + youngMap.size() + " oldMap.size()=" + oldMap.size());
         logger.debug("start with youngMap= " + youngMap + " oldMap=" + oldMap);
         for (ConcurrentHashMap.Entry<String, WeakReference<CachValue.Node>> entry : youngMap.entrySet()) {
-            System.out.println(entry.getValue().get()==null);
-
             if (entry.getValue() != null && entry.getValue().get() != null) {
-                System.out.println(entry.getValue().get().count);
                 if (entry.getValue().get().count > max) {
                     oldMap.put(entry.getKey(), new SoftReference<CachValue.Node>(entry.getValue().get()));
                     youngMap.remove(entry.getKey());

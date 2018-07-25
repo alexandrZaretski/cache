@@ -19,6 +19,7 @@ import javax.validation.Valid;
 @RequestMapping("/")
 public class ApiController {
     private static Logger logger = LogManager.getLogger(ApiController.class);
+
     @Autowired
     public ApiController(ApiRepository repository, CachValue cash) {
         this.repository = repository;
@@ -29,13 +30,13 @@ public class ApiController {
     CachValue cash;
 
     @GetMapping("/{id}")
-    public ResponseEntity getByKey(@PathVariable(value = "id") String key) throws NullPointerException  {
+    public ResponseEntity getByKey(@PathVariable(value = "id") String key) throws NullPointerException {
         ObjectKeyValue ob = cash.get(key);
 
         if (ob.getValue() == null) {
             ob = repository.findById(key).orElseThrow(NotFoundHttpException::new);
         }
-        logger.debug("method Get "+ob+"key ="+key);
+        logger.debug("method Get " + ob + "key =" + key);
         return ResponseEntity.status(HttpStatus.OK).allow(HttpMethod.GET).contentType(MediaType.APPLICATION_JSON_UTF8).body(ob);
 
     }
@@ -43,9 +44,8 @@ public class ApiController {
     @PostMapping
     public ResponseEntity postOrPut(@Valid @RequestBody ObjectKeyValue ob) {
         ob = repository.save(ob);
-        System.out.println("пипец"+ob);
         cash.put(ob);
-        logger.debug("method Put  object="+ob);
+        logger.debug("method Put  object=" + ob);
         return ResponseEntity.status(HttpStatus.OK).allow(HttpMethod.PUT).contentType(MediaType.APPLICATION_JSON_UTF8).body(ob);
     }
 

@@ -18,7 +18,7 @@ public class CachValue {
     private static int maxCount = 10;
     private static int max = 10;
 
-   protected static ConcurrentHashMap<String, WeakReference<Node>> youngMap = new ConcurrentHashMap<String, WeakReference<Node>>();
+    protected static ConcurrentHashMap<String, WeakReference<Node>> youngMap = new ConcurrentHashMap<String, WeakReference<Node>>();
 
     protected static ConcurrentHashMap<String, SoftReference<Node>> oldMap = new ConcurrentHashMap<String, SoftReference<Node>>();
 
@@ -46,8 +46,6 @@ public class CachValue {
 
     public ObjectKeyValue put(ObjectKeyValue ob) {
         count++;
-
-
         String key = ob.getKeyMy();
         WeakReference<Node> valueEnteredYoung = new WeakReference<Node>(new Node<String>(ob.getValue()));
         SoftReference<Node> valueEnteredOld = new SoftReference<>(new Node<String>(ob.getValue()));
@@ -55,20 +53,17 @@ public class CachValue {
         SoftReference<Node> valueOld = oldMap.get(key);
 
         if (valueYoung == null && valueOld == null) {
-            System.out.println("value2 == " + valueYoung);
             youngMap.put(key, valueEnteredYoung);
             logger.debug("method Put object=" + youngMap.get(key).get() + "by key empty in youngMap and oldMap");
         } else if (valueYoung != null) {
             if (valueYoung.get() != null) {
 
-                // Node prev = ;
                 int count = youngMap.get(key).get().count;
                 count++;
                 valueEnteredYoung.get().count = count;
                 youngMap.put(key, valueEnteredYoung);
                 logger.debug("method Put object=" + ob + "by key have in youngMap");
             } else {
-                System.out.println("Remove  value2.get() != null " + key + " =ккк " + valueYoung.get());
                 youngMap.remove(key);
                 logger.debug("method Put object=" + ob + "by key have  in youngMap but empty value .This key" + key + " will  delete");
             }
@@ -82,7 +77,6 @@ public class CachValue {
                 oldMap.put(key, valueEnteredOld);
                 logger.debug("method Put object=" + ob + "by key have in oldMap" + oldMap);
             } else {
-                System.out.println("Remove  value2.get() != null " + key + " = " + valueOld.get() != null);
                 oldMap.remove(key);
                 logger.debug("method Put object=" + ob + "by key have  in oldMap but empty value .This key" + key + " will  delete");
             }
@@ -95,10 +89,9 @@ public class CachValue {
 
     public ObjectKeyValue get(String key) {
         ++count;
-        System.out.println("count="+count);
         if (count > maxCount) {
             count = 0;
-           transferFromYoungToOld() ;
+            transferFromYoungToOld();
         }
 
         WeakReference<Node> nodeYoung = youngMap.get(key);
@@ -120,27 +113,25 @@ public class CachValue {
 
     }
 
-private void transferFromYoungToOld(){
-    logger.info("start with youngMap.size()= " + youngMap.size() + " oldMap.size()=" + oldMap.size());
-    logger.debug("start with youngMap= " + youngMap + " oldMap=" + oldMap);
-    for (ConcurrentHashMap.Entry<String, WeakReference<Node>> entry : youngMap.entrySet()) {
-        System.out.println(entry.getValue().get()==null);
+    private void transferFromYoungToOld() {
+        logger.info("start with youngMap.size()= " + youngMap.size() + " oldMap.size()=" + oldMap.size());
+        logger.debug("start with youngMap= " + youngMap + " oldMap=" + oldMap);
+        for (ConcurrentHashMap.Entry<String, WeakReference<Node>> entry : youngMap.entrySet()) {
+            if (entry.getValue() != null && entry.getValue().get() != null) {
+                if (entry.getValue().get().count > max) {
+                    oldMap.put(entry.getKey(), new SoftReference<Node>(entry.getValue().get()));
+                    youngMap.remove(entry.getKey());
+                }
+            } else {
 
-        if (entry.getValue() != null && entry.getValue().get() != null) {
-            System.out.println(entry.getValue().get().count);
-            if (entry.getValue().get().count > max) {
-                oldMap.put(entry.getKey(), new SoftReference<Node>(entry.getValue().get()));
                 youngMap.remove(entry.getKey());
             }
-        } else {
-
-            youngMap.remove(entry.getKey());
         }
-    }
-    logger.info("finish with youngMap.size()= " + youngMap.size() + " oldMap.size()=" + oldMap.size());
-    logger.debug("finish with youngMap= " + youngMap + " oldMap=" + oldMap);
+        logger.info("finish with youngMap.size()= " + youngMap.size() + " oldMap.size()=" + oldMap.size());
+        logger.debug("finish with youngMap= " + youngMap + " oldMap=" + oldMap);
 
-}
+    }
+
     private void maximizeCountForNode(Reference<Node> node, ObjectKeyValue ob, String key) {
 
 
