@@ -2,6 +2,7 @@ package com.cache.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -13,10 +14,13 @@ import javax.validation.constraints.NotBlank;
         allowGetters = true)
 public class ObjectKeyValue {
     @Id
+    @Column(name = "key_my")
     private String keyMy;
 
     @NotBlank
+    @Column(name = "value")
     private String value;
+
 
     public String getKeyMy() {
         return keyMy;
