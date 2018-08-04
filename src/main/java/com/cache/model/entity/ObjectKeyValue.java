@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
+
 @Entity
 @Table(name = "hash_key_value")
 @JsonIgnoreProperties(value = {"createdAt", "updatedAt"},
